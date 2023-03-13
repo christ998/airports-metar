@@ -1,10 +1,20 @@
 import React from 'react';
 import Head from "next/head";
 import {getAirportInfo, getMetar} from "@/requests";
+import useBestRunway from "@/hooks/useBestRunway";
 
 export default function Airport({info: {name, runways, ...props}, date, windSpeed, windDegrees, temperature, rawText, qnh}) {
-    console.log(runways)
-    console.log(props)
+    const bestRunways = useBestRunway(props.icao_code)
+    const bgColour = (status) => {
+        switch (status) {
+            case "Headwind":
+                return "bg-green"
+            case "Crosswind":
+                return "bg-yellow"
+            default:
+                return ""
+        }
+    }
     return (
         <>
             <Head>
@@ -41,37 +51,36 @@ export default function Airport({info: {name, runways, ...props}, date, windSpee
                                 <h2 className="font-bold">Runways</h2>
                                 <div className="flex">
                                     {
-                                        runways && runways.map((runway, index: number) =>
+                                        bestRunways.map((runway, index: number) =>
                                             <React.Fragment key={index}>
                                                 <div className="pr-8">
                                                     <div className="flex justify-between items-center">
-                                                        <h2 className="px-4 py-2 bg-green border">{runway.he_ident}</h2>
-                                                        <h2>wind</h2>
+                                                        <h3 className={`px-4 py-2 font-bold rounded-md border ${bgColour(runway.status)}`}>{runway.name}</h3>
+                                                        <h3>{runway.status}</h3>
                                                     </div>
                                                     <div className="flex justify-between">
                                                         <h3 className="pr-14">Heading</h3>
-                                                        <h3>{runway.he_heading_degT}</h3>
+                                                        <h3>{runway.heading}</h3>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <h3 className="pr-14">Length </h3>
-                                                        <h3>{Math.floor(parseInt(runway.length_ft)*0.3)}m</h3>
+                                                        <h3 className="pr-14">{runway.status == "Headwind" ? "Headwind": "Tailwind"}</h3>
+                                                        <h3>{runway.status == "Headwind" ? runway.headWind : runway.tailWind} kts</h3>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <h3 className="pr-14">Crosswind</h3>
+                                                        <h3>{runway.crossWind} kts</h3>
+                                                    </div>
+                                                    {/*<div className="flex justify-between">*/}
+                                                    {/*    <h3 className="pr-14">Length </h3>*/}
+                                                    {/*    <h3>{Math.floor(parseInt(runway.length_ft)*0.3)}m</h3>*/}
+                                                    {/*</div>*/}
+                                                    <div className="flex justify-between">
+                                                        <h3 className="pr-14">ILS</h3>
+                                                        <h3>{runway.ils ? runway.ils : "No"}</h3>
                                                     </div>
 
                                                 </div>
-                                                <div className="pr-8">
-                                                    <div className="flex justify-between items-center">
-                                                        <h3 className="px-4 py-2 bg-green border">{runway.le_ident}</h3>
-                                                        <h3>wind</h3>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <h3 className="pr-14">Heading </h3>
-                                                        <h3>{runway.le_heading_degT}</h3>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <h3 className="pr-14">Length </h3>
-                                                        <h3>{Math.floor(parseInt(runway.length_ft)*0.3)}m</h3>
-                                                    </div>
-                                                </div>
+
                                             </React.Fragment>
                                         )
                                     }
@@ -91,7 +100,7 @@ export const getServerSideProps = async (context) => {
     const {icao} = context.query
     const {data} = await getAirportInfo(icao)
     const metar = await getMetar(icao)
-    console.log(metar.data.data[0])
+    console.log(data)
     return {
         props: {
             info: data,
