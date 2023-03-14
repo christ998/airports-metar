@@ -1,34 +1,29 @@
 import {useEffect, useState} from 'react';
-import {getAirportInfo, getMetar} from "@/requests";
 import {calculateCrossWind, calculateHeadWind} from "@/components/helpers/runwayCalculator";
+import fetchData from "@/hooks/fetchData";
 
-function UseBestRunway(icao: String) {
-    const [airportData, setAirportData] = useState()
-    const [metar, setMetar] = useState({})
+function UseAirport(icao) {
+    const [airportData, setAirportData] = useState(null)
+    const [metar, setMetar] = useState(null)
+    const [error, setError] = useState("")
+
+    const fetchAirport = fetchData({
+        setAirport: setAirportData,
+        setMetar: setMetar,
+        setError: setError,
+    })
 
     useEffect(() => {
-        const getInfoAndMetar = async () => {
-            const airport = await getAirportInfo(icao)
-            const metar = await getMetar(icao)
-            setAirportData(airport.data)
-            setMetar(metar.data.data[0])
-        }
-        getInfoAndMetar()
+        fetchAirport(icao)
     }, [])
 
-    useEffect(() => {
-        console.log(airportData)
-        console.log(metar)
-
-    }, [airportData, metar])
 
     const runways = []
-    if (airportData) {
+    if (airportData && metar) {
 
         airportData.runways.forEach(runway => {
             const he_runway_parallelWind = calculateHeadWind(metar.wind.degrees, metar.wind.speed_kts, runway.he_heading_degT)
             const runway_crossWind = calculateCrossWind(metar.wind.degrees, metar.wind.speed_kts, runway.he_heading_degT)
-            const le_runway_parallelWind = -he_runway_parallelWind
 
             if (he_runway_parallelWind > 0 && runway_crossWind <= he_runway_parallelWind) {
                 runways.push({
@@ -45,10 +40,11 @@ function UseBestRunway(icao: String) {
                     name: runway.le_ident,
                     heading: runway.le_heading_degT,
                     headWind: 0,
-                    tailWind: le_runway_parallelWind,
+                    tailWind: he_runway_parallelWind,
                     crossWind: runway_crossWind,
                     ils: runway.le_ils?.freq
                 })
+
             } else if (he_runway_parallelWind > 0 && runway_crossWind > he_runway_parallelWind) {
                 runways.push({
                     status: "Crosswind",
@@ -58,25 +54,44 @@ function UseBestRunway(icao: String) {
                     tailWind: 0,
                     crossWind: Math.round(runway_crossWind),
                     ils: runway.he_ils?.freq
-
                 })
+
                 runways.push({
                     status: "Tailwind",
                     name: runway.le_ident,
                     heading: runway.le_heading_degT,
                     headWind: 0,
-                    tailWind: le_runway_parallelWind,
+                    tailWind: he_runway_parallelWind,
                     crossWind: Math.round(runway_crossWind),
                     ils: runway.le_ils?.freq
                 })
 
+            } else if (runway_crossWind > -he_runway_parallelWind){
+                runways.push({
+                    status: "Tailwind",
+                    heading: runway.he_heading_degT,
+                    name: runway.he_ident,
+                    headWind: 0,
+                    tailWind: -he_runway_parallelWind,
+                    crossWind: runway_crossWind,
+                    ils: runway.he_ils?.freq
+                })
+                runways.push({
+                    status: "Crosswind",
+                    name: runway.le_ident,
+                    heading: runway.le_heading_degT,
+                    headWind: -he_runway_parallelWind,
+                    tailWind: 0,
+                    crossWind: runway_crossWind,
+                    ils: runway.le_ils?.freq
+                })
             } else {
                 runways.push({
                     status: "Tailwind",
                     heading: runway.he_heading_degT,
                     name: runway.he_ident,
                     headWind: 0,
-                    tailWind: le_runway_parallelWind,
+                    tailWind: -he_runway_parallelWind,
                     crossWind: runway_crossWind,
                     ils: runway.he_ils?.freq
                 })
@@ -84,16 +99,18 @@ function UseBestRunway(icao: String) {
                     status: "Headwind",
                     name: runway.le_ident,
                     heading: runway.le_heading_degT,
-                    headWind: le_runway_parallelWind,
+                    headWind: -he_runway_parallelWind,
                     tailWind: 0,
                     crossWind: runway_crossWind,
                     ils: runway.le_ils?.freq
                 })
-
             }
         })
     }
-    return runways
+    runways.sort((a, b) => {
+        return b.headWind - a.headWind
+    })
+    return [runways, airportData]
 }
 
-export default UseBestRunway;
+export default UseAirport;

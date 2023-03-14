@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Head from "next/head";
-import {getAirportInfo, getMetar} from "@/requests";
-import useBestRunway from "@/hooks/useBestRunway";
+import useAirport from "../../hooks/useAirport"
 
-export default function Airport({info: {name, runways, ...props}, date, windSpeed, windDegrees, temperature, rawText, qnh}) {
-    const bestRunways = useBestRunway(props.icao_code)
-    const bgColour = (status) => {
+export default function Airport({icao_code}) {
+    const [bestRunways, airportData] = useAirport(icao_code)
+    const [loading, setLoading] = useState(true)
+
+
+    const bgColour = (status: String) => {
         switch (status) {
             case "Headwind":
                 return "bg-green"
@@ -15,38 +17,48 @@ export default function Airport({info: {name, runways, ...props}, date, windSpee
                 return ""
         }
     }
+    useEffect(()=> {
+        if (airportData){
+            setLoading(false)
+        }
+    },[airportData])
+
+    if (loading == true) return <></>
+
+
     return (
         <>
             <Head>
-                <title>{name}</title>
+                <title>{icao_code}</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1"/>
             </Head>
             <main>
+
                 <div>
                     <div className="h-screen flex justify-center items-center animate__animated animate__fadeIn ">
                         <div>
                             <div className="">
-                                <h1 className="font-bold">{props.icao_code}</h1>
-                                <h1 className="font-bold">{name}</h1>
-                                <h2>Elevation: {props.elevation_ft} ft</h2>
+                                <h1 className="font-bold">{airportData.icao_code}</h1>
+                                <h1 className="font-bold">{airportData.name}</h1>
+                                <h2>Elevation: {airportData.elevation_ft} ft</h2>
                             </div>
-                            <div className="mt-4">
-                                <h2 className="font-bold">Last METAR</h2>
-                                <h2>{rawText}</h2>
-                            </div>
-                            <div className="mt-4">
-                                <h2 className="font-bold">Date: {date}</h2>
-                                <h2><span className="font-bold">Temperature</span>: {temperature} °C</h2>
-                                <h2><span className="font-bold">Wind</span>:
-                                    {windSpeed ?
-                                        (
-                                            <span>{windDegrees}° {windSpeed} kts</span>
-                                        ):
-                                        "No"
-                                    }
-                                </h2>
-                                <h2><span className="font-bold">QNH</span>: {qnh}</h2>
-                            </div>
+                            {/*<div className="mt-4">*/}
+                            {/*    <h2 className="font-bold">Last METAR</h2>*/}
+                            {/*    <h2>{rawText}</h2>*/}
+                            {/*</div>*/}
+                            {/*<div className="mt-4">*/}
+                            {/*    <h2 className="font-bold">Date: {date}</h2>*/}
+                            {/*    <h2><span className="font-bold">Temperature</span>: {temperature} °C</h2>*/}
+                            {/*    <h2><span className="font-bold">Wind</span>:*/}
+                            {/*        {windSpeed ?*/}
+                            {/*            (*/}
+                            {/*                <span>{windDegrees}° {windSpeed} kts</span>*/}
+                            {/*            ):*/}
+                            {/*            "No"*/}
+                            {/*        }*/}
+                            {/*    </h2>*/}
+                            {/*    <h2><span className="font-bold">QNH</span>: {qnh}</h2>*/}
+                            {/*</div>*/}
                             <div className="mt-4">
                                 <h2 className="font-bold">Runways</h2>
                                 <div className="flex">
@@ -63,8 +75,8 @@ export default function Airport({info: {name, runways, ...props}, date, windSpee
                                                         <h3>{runway.heading}</h3>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <h3 className="pr-14">{runway.status == "Headwind" ? "Headwind": "Tailwind"}</h3>
-                                                        <h3>{runway.status == "Headwind" ? runway.headWind : runway.tailWind} kts</h3>
+                                                        <h3 className="pr-14">{["Crosswind", "Headwind"].includes(runway.status) ? "Headwind" : "Tailwind"}</h3>
+                                                        <h3>{["Crosswind", "Headwind"].includes(runway.status) ? runway.headWind : runway.tailWind} kts</h3>
                                                     </div>
                                                     <div className="flex justify-between">
                                                         <h3 className="pr-14">Crosswind</h3>
@@ -78,7 +90,6 @@ export default function Airport({info: {name, runways, ...props}, date, windSpee
                                                         <h3 className="pr-14">ILS</h3>
                                                         <h3>{runway.ils ? runway.ils : "No"}</h3>
                                                     </div>
-
                                                 </div>
 
                                             </React.Fragment>
@@ -94,23 +105,15 @@ export default function Airport({info: {name, runways, ...props}, date, windSpee
             </main>
         </>
     );
+
 }
 
 export const getServerSideProps = async (context) => {
-    const {icao} = context.query
-    const {data} = await getAirportInfo(icao)
-    const metar = await getMetar(icao)
-    console.log(data)
+    const {icao}: String = context.query
+
     return {
         props: {
-            info: data,
-            date: new Date(metar.data.data[0].observed + "Z").toUTCString(),
-            windSpeed: metar.data.data[0].wind?.speed_kts != undefined ? metar.data.data[0].wind.speed_kts : null,
-            windDegrees: metar.data.data[0].wind?.degrees != undefined ? metar.data.data[0].wind.degrees : null,
-            temperature: metar.data.data[0].temperature.celsius,
-            rawText: metar.data.data[0].raw_text,
-            qnh: metar.data.data[0].barometer.hpa,
-
+            icao_code: icao
         }
     }
 
