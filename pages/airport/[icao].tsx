@@ -3,7 +3,7 @@ import Head from "next/head";
 import useAirport from "../../hooks/useAirport"
 
 export default function Airport({icao_code}) {
-    const [bestRunways, airportData] = useAirport(icao_code)
+    const [bestRunways, airportData, metar] = useAirport(icao_code)
     const [loading, setLoading] = useState(true)
 
 
@@ -42,23 +42,23 @@ export default function Airport({icao_code}) {
                                 <h1 className="font-bold">{airportData.name}</h1>
                                 <h2>Elevation: {airportData.elevation_ft} ft</h2>
                             </div>
-                            {/*<div className="mt-4">*/}
-                            {/*    <h2 className="font-bold">Last METAR</h2>*/}
-                            {/*    <h2>{rawText}</h2>*/}
-                            {/*</div>*/}
-                            {/*<div className="mt-4">*/}
-                            {/*    <h2 className="font-bold">Date: {date}</h2>*/}
-                            {/*    <h2><span className="font-bold">Temperature</span>: {temperature} °C</h2>*/}
-                            {/*    <h2><span className="font-bold">Wind</span>:*/}
-                            {/*        {windSpeed ?*/}
-                            {/*            (*/}
-                            {/*                <span>{windDegrees}° {windSpeed} kts</span>*/}
-                            {/*            ):*/}
-                            {/*            "No"*/}
-                            {/*        }*/}
-                            {/*    </h2>*/}
-                            {/*    <h2><span className="font-bold">QNH</span>: {qnh}</h2>*/}
-                            {/*</div>*/}
+                            <div className="mt-4">
+                                <h2 className="font-bold">Last METAR</h2>
+                                <h2>{metar.raw}</h2>
+                            </div>
+                            <div className="mt-4">
+                                <h2 className="font-bold">Date: {metar.meta.timestamp}</h2>
+                                <h2><span className="font-bold">Temperature</span>: {metar.temperature.value} °C</h2>
+                                <h2><span className="font-bold">Wind</span>:
+                                    {metar.wind_speed.value ?
+                                        (
+                                            <span>{metar.wind_direction.repr}° {metar.wind_speed.value} kts</span>
+                                        ):
+                                        "No"
+                                    }
+                                </h2>
+                                <h2><span className="font-bold">QNH</span>: {metar.altimeter.value}</h2>
+                            </div>
                             <div className="mt-4">
                                 <h2 className="font-bold">Runways</h2>
                                 <div className="flex">
@@ -76,7 +76,8 @@ export default function Airport({icao_code}) {
                                                     </div>
                                                     <div className="flex justify-between">
                                                         <h3 className="pr-14">{["Crosswind", "Headwind"].includes(runway.status) ? "Headwind" : "Tailwind"}</h3>
-                                                        <h3>{["Crosswind", "Headwind"].includes(runway.status) ? runway.headWind : runway.tailWind} kts</h3>
+                                                        {/*<h3>{["Crosswind", "Headwind"].includes(runway.status) ? runway.headWind : runway.tailWind} kts</h3>*/}
+                                                        <h3>{runway.windParallel} kts</h3>
                                                     </div>
                                                     <div className="flex justify-between">
                                                         <h3 className="pr-14">Crosswind</h3>

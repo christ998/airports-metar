@@ -12,7 +12,7 @@ function FetchData({setAirport, setMetar, setError}) {
                 return
             }
             setAirport(arpt.data)
-            setMetar(metar.data.data[0])
+            setMetar(metar.data)
         } catch (error) {
             setError(error)
         }

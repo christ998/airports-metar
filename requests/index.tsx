@@ -6,6 +6,6 @@ export const getAirportInfo = async (icao: String) => {
 };
 
 export const getMetar = async (icao: String) => {
-  const data = await axiosMetar.get(`/${icao}/decoded`);
+  const data = await axiosMetar.get(`/${icao}`);
   return data;
 };
