@@ -20,16 +20,17 @@ function UseAirport(icao) {
 
     const runways = []
     if (airportData && metar) {
-
         airportData.runways?.forEach(runway => {
             const he_runway_parallelWind = calculateHeadWind(metar.wind_direction.value, metar.wind_speed.value, runway.he_heading_degT)
             const runway_crossWind = calculateCrossWind(metar.wind_direction.value, metar.wind_speed.value, runway.he_heading_degT)
             const he_status =
-                he_runway_parallelWind < 0 ? "Tailwind"
-                    :
-                    (runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind";
+                he_runway_parallelWind ?
+                    (he_runway_parallelWind < 0 ? "Tailwind"
+                        :
+                        (runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind") : "Variable";
             const le_status =
-                he_status == "Tailwind" ?  ((runway_crossWind > Math.abs(he_runway_parallelWind) ) ? "Crosswind" : "Headwind") : "Tailwind";
+                he_status !== "Variable" ?
+                he_status == "Tailwind" ? ((runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind") : "Tailwind" : "Variable";
 
             runways.push({
                 status: he_status,
@@ -52,7 +53,9 @@ function UseAirport(icao) {
 
     }
     runways.sort((a, b) => {
-        return b.headWind - a.headWind
+        const orden = {"Headwind": 1, "Crosswind": 2, "Tailwind": 3};
+
+        return orden[a.status] - orden[b.status];
     })
     return [runways, airportData, metar]
 

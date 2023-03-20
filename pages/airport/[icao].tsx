@@ -17,11 +17,11 @@ export default function Airport({icao_code}) {
                 return ""
         }
     }
-    useEffect(()=> {
-        if (airportData){
+    useEffect(() => {
+        if (airportData) {
             setLoading(false)
         }
-    },[airportData])
+    }, [airportData])
 
     if (loading == true) return <></>
 
@@ -53,7 +53,7 @@ export default function Airport({icao_code}) {
                                     {metar.wind_speed.value ?
                                         (
                                             <span>{metar.wind_direction.repr}° {metar.wind_speed.value} kts</span>
-                                        ):
+                                        ) :
                                         "No"
                                     }
                                 </h2>
@@ -74,15 +74,23 @@ export default function Airport({icao_code}) {
                                                         <h3 className="pr-14">Heading</h3>
                                                         <h3>{runway.heading}</h3>
                                                     </div>
-                                                    <div className="flex justify-between">
-                                                        <h3 className="pr-14">{["Crosswind", "Headwind"].includes(runway.status) ? "Headwind" : "Tailwind"}</h3>
-                                                        {/*<h3>{["Crosswind", "Headwind"].includes(runway.status) ? runway.headWind : runway.tailWind} kts</h3>*/}
-                                                        <h3>{runway.windParallel} kts</h3>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <h3 className="pr-14">Crosswind</h3>
-                                                        <h3>{runway.crossWind} kts</h3>
-                                                    </div>
+                                                    {
+                                                        runway.windParallel ?
+                                                            <>
+                                                                <div className="flex justify-between">
+                                                                    <h3 className="pr-14">{["Crosswind", "Headwind"].includes(runway.status) ? "Headwind" : "Tailwind"}</h3>
+                                                                    <h3>{runway.windParallel} kts</h3>
+                                                                </div>
+                                                                <div className="flex justify-between">
+                                                                    <h3 className="pr-14">Crosswind</h3>
+                                                                    <h3>{runway.crossWind} kts</h3>
+                                                                </div>
+                                                            </>
+
+                                                            :
+                                                            null
+                                                    }
+
                                                     {/*<div className="flex justify-between">*/}
                                                     {/*    <h3 className="pr-14">Length </h3>*/}
                                                     {/*    <h3>{Math.floor(parseInt(runway.length_ft)*0.3)}m</h3>*/}
