@@ -7,7 +7,7 @@ function Form() {
     const router = useRouter()
 
     const handleInput = (event: React.ChangeEvent) => {
-        setIcao(event.target.value)
+        setIcao((event.target as HTMLInputElement).value)
     }
 
     useEffect(() => {
