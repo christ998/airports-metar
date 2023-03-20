@@ -91,10 +91,10 @@ export default function Airport({icao_code}) {
                                                             null
                                                     }
 
-                                                    {/*<div className="flex justify-between">*/}
-                                                    {/*    <h3 className="pr-14">Length </h3>*/}
-                                                    {/*    <h3>{Math.floor(parseInt(runway.length_ft)*0.3)}m</h3>*/}
-                                                    {/*</div>*/}
+                                                    <div className="flex justify-between">
+                                                        <h3 className="pr-14">Length</h3>
+                                                        <h3>{runway.length}m</h3>
+                                                    </div>
                                                     <div className="flex justify-between">
                                                         <h3 className="pr-14">ILS</h3>
                                                         <h3>{runway.ils ? runway.ils : "No"}</h3>

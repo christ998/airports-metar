@@ -17,6 +17,7 @@ function UseAirport(icao) {
         fetchAirport(icao)
     }, [])
 
+    const ftToMetres = (fts) => Math.round(fts*0.304)
 
     const runways = []
     if (airportData && metar) {
@@ -30,7 +31,7 @@ function UseAirport(icao) {
                         (runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind") : "Variable";
             const le_status =
                 he_status !== "Variable" ?
-                he_status == "Tailwind" ? ((runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind") : "Tailwind" : "Variable";
+                    he_status == "Tailwind" ? ((runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind") : "Tailwind" : "Variable";
 
             runways.push({
                 status: he_status,
@@ -38,6 +39,7 @@ function UseAirport(icao) {
                 heading: runway.he_heading_degT,
                 windParallel: Math.abs(he_runway_parallelWind),
                 crossWind: runway_crossWind,
+                length: ftToMetres(runway.length_ft),
                 ils: runway.he_ils?.freq
             })
             runways.push({
@@ -46,6 +48,7 @@ function UseAirport(icao) {
                 heading: runway.le_heading_degT,
                 windParallel: Math.abs(he_runway_parallelWind),
                 crossWind: runway_crossWind,
+                length: ftToMetres(runway.length_ft),
                 ils: runway.le_ils?.freq
             })
 
