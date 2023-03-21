@@ -1,9 +1,15 @@
 import React from 'react';
 import {getAirportInfo, getMetar} from "@/requests";
 
-function FetchData({setAirport, setMetar, setError}) {
+interface props {
+    setAirport: React.Dispatch<React.SetStateAction<any>>,
+    setMetar:React.Dispatch<React.SetStateAction<any>>,
+    setError: React.Dispatch<React.SetStateAction<any>>,
+}
 
-    const fetch = async (icao) => {
+function FetchData({setAirport, setMetar, setError}: props) {
+
+    const fetch = async (icao: String) => {
         try {
             const metar = await getMetar(icao)
             const arpt = await getAirportInfo(icao)
