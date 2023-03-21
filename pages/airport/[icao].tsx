@@ -118,7 +118,7 @@ export default function Airport({icao_code}) {
 }
 
 export const getServerSideProps = async (context) => {
-    const {icao}: String = context.query
+    const {icao} = context.query
 
     return {
         props: {

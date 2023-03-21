@@ -17,7 +17,7 @@ function Form() {
             }
         }
         fetchMetar()
-    }, [icao])
+    }, [icao, router])
 
     return (
         <>
