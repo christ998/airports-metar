@@ -20,4 +20,4 @@ Esta es una aplicación donde al ingresar un código ICAO de un aeropuerto, most
 
 ## Built With
 
-Este proyecto esta creado con NextJS Framework
+Este proyecto esta creado con NextJS Framework. Se usó librería Tailwindcss
