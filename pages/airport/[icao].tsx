@@ -2,12 +2,16 @@ import React, {useEffect, useState} from 'react';
 import Head from "next/head";
 import useAirport from "../../hooks/useAirport"
 
-export default function Airport({icao_code}) {
+interface props {
+    icao_code: string
+}
+
+export default function Airport({icao_code} : props) {
     const [bestRunways, airportData, metar] = useAirport(icao_code)
     const [loading, setLoading] = useState(true)
 
 
-    const bgColour = (status: String) => {
+    const bgColour = (status: string) => {
         switch (status) {
             case "Headwind":
                 return "bg-green"
@@ -118,7 +122,7 @@ export default function Airport({icao_code}) {
 }
 
 export const getServerSideProps = async (context) => {
-    const {icao}: String = context.query
+    const {icao} = context.query
 
     return {
         props: {
