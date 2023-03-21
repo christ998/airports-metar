@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {calculateCrossWind, calculateHeadWind} from "@/components/helpers/runwayCalculator";
 import fetchData from "@/hooks/fetchData";
 
-function UseAirport(icao) {
+function UseAirport(icao: String) {
     const [airportData, setAirportData] = useState(null)
     const [metar, setMetar] = useState(null)
     const [error, setError] = useState("")
@@ -17,7 +17,7 @@ function UseAirport(icao) {
         fetchAirport(icao)
     }, [])
 
-    const ftToMetres = (fts) => Math.round(fts*0.304)
+    const ftToMetres = (fts: number) => Math.round(fts*0.304)
 
     const runways = []
     if (airportData && metar) {
