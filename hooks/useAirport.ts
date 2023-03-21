@@ -25,10 +25,9 @@ function UseAirport(icao: String) {
             const he_runway_parallelWind = calculateHeadWind(metar.wind_direction.value, metar.wind_speed.value, runway.he_heading_degT)
             const runway_crossWind = calculateCrossWind(metar.wind_direction.value, metar.wind_speed.value, runway.he_heading_degT)
             const he_status =
-                he_runway_parallelWind ?
-                    (he_runway_parallelWind < 0 ? "Tailwind"
-                        :
-                        (runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind") : "Variable";
+                (he_runway_parallelWind !== null || he_runway_parallelWind == 0) ?
+                    (he_runway_parallelWind < 0 ? "Tailwind" :
+                        (runway_crossWind > Math.abs(he_runway_parallelWind) ) ? "Crosswind" : "Headwind") : "Variable";
             const le_status =
                 he_status !== "Variable" ?
                     he_status == "Tailwind" ? ((runway_crossWind > Math.abs(he_runway_parallelWind)) ? "Crosswind" : "Headwind") : "Tailwind" : "Variable";
