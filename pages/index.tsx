@@ -1,8 +1,14 @@
 import Head from 'next/head'
 import "animate.css"
 import Form from "@/components/form";
+import {useRouter} from "next/router";
 
 export default function Home() {
+    const router = useRouter()
+    const onLoaded = (icao) => {
+        router.push(`/airport/${icao}`)
+    }
+
   return (
     <>
       <Head>
@@ -12,7 +18,9 @@ export default function Home() {
       </Head>
       <main className="bg-grey">
           <div className="h-screen flex justify-center flex-col items-center animate__animated animate__fadeIn">
-              <Form/>
+              <Form
+                  onSubmit={onLoaded}
+              />
           </div>
 
       </main>

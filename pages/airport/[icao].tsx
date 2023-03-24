@@ -1,15 +1,30 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Head from "next/head";
 import useAirport from "../../hooks/useAirport"
+import {ContextApp} from "@/context/context";
+import FetchData from "@/hooks/fetchData";
+import Loading from "@/components/loading";
+import {useRouter} from "next/router";
 
-interface props {
-    icao_code: string
-}
+export default function Airport() {
 
-export default function Airport({icao_code} : props) {
-    const [bestRunways, airportData, metar] = useAirport(icao_code)
+    const bestRunways = useAirport()
+    const [airportData, metar, setAirportData, setMetar] = useContext(ContextApp)
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
+    const { icao } = router.query
 
+    const handleError = (error) => {
+        router.push("/")
+    }
+
+    const fetchData = FetchData({
+        setAirport: setAirportData,
+        setMetar: setMetar,
+        setErrorArpt: handleError,
+        setErrorMetar: handleError,
+        onLoaded: (value) => setLoading(value)
+    })
 
     const bgColour = (status: string) => {
         switch (status) {
@@ -22,18 +37,21 @@ export default function Airport({icao_code} : props) {
         }
     }
     useEffect(() => {
-        if (airportData) {
+        if (!airportData) {
+            fetchData(icao as String)
+        } else {
             setLoading(false)
         }
-    }, [airportData])
 
-    if (loading == true) return <></>
+    }, [])
+
+    if (loading == true) return <Loading/>
 
 
     return (
         <>
             <Head>
-                <title>{icao_code}</title>
+                <title>{airportData.icao_code}</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1"/>
             </Head>
             <main>
@@ -109,9 +127,7 @@ export default function Airport({icao_code} : props) {
                                         )
                                     }
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -121,13 +137,9 @@ export default function Airport({icao_code} : props) {
 
 }
 
-export const getServerSideProps = async (context) => {
-    const {icao} = context.query
-
+Airport.getInitialProps = (context) => {
     return {
-        props: {
-            icao_code: icao
-        }
-    }
 
+    }
 }
+

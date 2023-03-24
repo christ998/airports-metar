@@ -1,27 +1,16 @@
-import {useEffect, useState} from 'react';
 import {calculateCrossWind, calculateHeadWind} from "@/components/helpers/runwayCalculator";
-import fetchData from "@/hooks/fetchData";
+import {useContext, useEffect} from "react";
+import {ContextApp} from "@/context/context";
 
-function UseAirport(icao: String) {
-    const [airportData, setAirportData] = useState(null)
-    const [metar, setMetar] = useState(null)
-    const [error, setError] = useState("")
-
-    const fetchAirport = fetchData({
-        setAirport: setAirportData,
-        setMetar: setMetar,
-        setError: setError,
-    })
-
-    useEffect(() => {
-        fetchAirport(icao)
-    }, [])
+function UseAirport() {
+    const [airport, metar] = useContext(ContextApp)
 
     const ftToMetres = (fts: number) => Math.round(fts*0.304)
-
+    useEffect(()=>{
+    }, [])
     const runways = []
-    if (airportData && metar) {
-        airportData.runways?.forEach(runway => {
+    if (airport && metar) {
+        airport.runways?.forEach(runway => {
             const he_runway_parallelWind = calculateHeadWind(metar.wind_direction.value, metar.wind_speed.value, runway.he_heading_degT)
             const runway_crossWind = calculateCrossWind(metar.wind_direction.value, metar.wind_speed.value, runway.he_heading_degT)
             const he_status =
@@ -59,7 +48,7 @@ function UseAirport(icao: String) {
 
         return orden[a.status] - orden[b.status];
     })
-    return [runways, airportData, metar]
+    return runways
 
 }
 

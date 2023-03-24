@@ -7,20 +7,22 @@ interface props {
     setError: React.Dispatch<React.SetStateAction<any>>,
 }
 
-function FetchData({setAirport, setMetar, setError}: props) {
+function FetchData({setAirport, setMetar, setErrorArpt, setErrorMetar, onLoaded}) {
 
     const fetch = async (icao: String) => {
         try {
             const metar = await getMetar(icao)
-            const arpt = await getAirportInfo(icao)
-            if (metar.data.error) {
-                setError(metar.data.error)
-                return
-            }
-            setAirport(arpt.data)
             setMetar(metar.data)
         } catch (error) {
-            setError(error)
+            setErrorMetar(error.response)
+        }
+
+        try {
+            const arpt = await getAirportInfo(icao)
+            setAirport(arpt.data)
+            onLoaded(false)
+        } catch (error) {
+            setErrorArpt(error.response)
         }
     }
 
