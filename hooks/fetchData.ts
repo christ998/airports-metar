@@ -14,7 +14,7 @@ function FetchData({setAirport, setMetar, setErrorArpt, setErrorMetar, onLoaded}
             const metar = await getMetar(icao)
             setMetar(metar.data)
         } catch (error) {
-            setErrorMetar(error.response)
+            setErrorMetar(error.response?.data?.error)
         }
 
         try {
@@ -22,7 +22,7 @@ function FetchData({setAirport, setMetar, setErrorArpt, setErrorMetar, onLoaded}
             setAirport(arpt.data)
             onLoaded(false)
         } catch (error) {
-            setErrorArpt(error.response)
+            setErrorArpt(error.response?.data?.message)
         }
     }
 
