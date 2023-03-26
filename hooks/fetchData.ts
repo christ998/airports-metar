@@ -15,6 +15,7 @@ function FetchData({setAirport, setMetar, setErrorArpt, setErrorMetar, onLoaded}
             setMetar(metar.data)
         } catch (error) {
             setErrorMetar(error.response?.data?.error)
+            onLoaded(false)
         }
 
         try {
@@ -23,6 +24,7 @@ function FetchData({setAirport, setMetar, setErrorArpt, setErrorMetar, onLoaded}
             onLoaded(false)
         } catch (error) {
             setErrorArpt(error.response?.data?.message)
+            onLoaded(false)
         }
     }
 
