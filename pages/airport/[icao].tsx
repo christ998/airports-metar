@@ -23,7 +23,7 @@ export default function Airport() {
         setMetar: setMetar,
         setErrorArpt: handleError,
         setErrorMetar: handleError,
-        onLoaded: (value) => setLoading(value)
+        onLoaded: setLoading
     })
 
     const bgColour = (status: string) => {

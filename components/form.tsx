@@ -1,19 +1,18 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import fetchData from "@/hooks/fetchData";
-import {ContextApp} from "@/context/context";
 
 function Form(props) {
 
     const [icao, setIcao] = useState("")
     const [errorArpt, setErrorArpt] = useState(false)
     const [errorMetar, setErrorMetar] = useState(false)
-    const [, , setAirportData, setMetar] = useContext(ContextApp)
 
     const fetchAirport = fetchData({
-        setAirport: setAirportData,
-        setMetar: setMetar,
+        setAirport: props.setAirport,
+        setMetar: props.setMetar,
         setErrorArpt: setErrorArpt,
         setErrorMetar: setErrorMetar,
+        onLoaded: props.setLoading
     })
 
     const handleInput = (event: React.ChangeEvent) => {
@@ -23,8 +22,8 @@ function Form(props) {
     useEffect(() => {
         const fetchMetar = async () => {
             if (icao.length === 4) {
-                await fetchAirport(icao)
-                props.onSubmit(icao)
+                props.setLoading(true)
+                fetchAirport(icao)
             }
         }
         fetchMetar()
@@ -38,7 +37,13 @@ function Form(props) {
             {
                 errorArpt &&
                 <div>
-                    <h6>{errorArpt.response.data}</h6>
+                    <h6>{errorArpt}</h6>
+                </div>
+            }
+            {
+                errorMetar &&
+                <div>
+                    <h6>{errorMetar}</h6>
                 </div>
             }
             <input maxLength={4} value={icao} onChange={handleInput} className="p-2.5 border mt-7"
